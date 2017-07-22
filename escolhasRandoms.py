@@ -8,6 +8,8 @@ global adjMatrix
 global missingEdges
 
 def isNeigh(a, b):
+    #since is a directed graph, to test if two vertices are neighbours
+    #they to have "sorted"
     global adjMatrix
     if(a < b):
         return adjMatrix[a][b]
@@ -15,6 +17,7 @@ def isNeigh(a, b):
         return adjMatrix[b][a]
 
 def choiceHandler(vertices):
+    #Updates adjMatrix with the direct edges from comparison
     global adjMatrix
     size = len(vertices)
     vertices.sort()
@@ -26,6 +29,9 @@ def choiceHandler(vertices):
 def computeTransitive():
     global adjMatrix
     #compute the transitive matrix using matrix multiplication
+    #Naive way
+
+    #TODO: use fast exponentiation
 
     dimension = len(adjMatrix)
     numberOfTimes = math.ceil(math.sqrt(dimension))
@@ -37,11 +43,13 @@ def updateMissingEdges():
     global adjMatrix
     global missingEdges
     #this function iterates through the rows of the matrix
-    #checking if the number is already complete(ordered), and updating
-    #the list of that keeps track of how many missing edges each vertices has
+    #checking if the vertice is already complete(ordered), and updating
+    #the list that keeps track of how many missing edges each vertices has
     count = 0
     for row in adjMatrix:
-        missingEdges[count] = len(adjMatrix) - (np.dot(adjMatrix[count], np.ones(len(adjMatrix), dtype=int)))
+        nodesBelow = (np.dot(adjMatrix[count], np.ones(len(adjMatrix), dtype=int)))
+        nodesAbove = (np.dot(adjMatrix[:, count], np.ones((len(adjMatrix)), dtype=int)))
+        missingEdges[count] = len(adjMatrix) + 1 - nodesBelow - nodesAbove
         count += 1
 
 def checkCompletion():
@@ -50,6 +58,8 @@ def checkCompletion():
     return 0 == sum(missingEdges)
 
 def chooseLessKnow(number):
+    #simple heuristic to choose vertices for selection, just get all the vertices
+    #that have less edges on the graph
     global adjMatrix
     global missingEdges
     ret = heapq.nlargest(number, range(len(missingEdges)), missingEdges.__getitem__)
@@ -59,18 +69,22 @@ def chooseLessKnowNoRepeat(number):
     global adjMatrix
     global missingEdges
     #need to shuffle to avoid skewed decision based on ordering
+    #more complex heuristic that choose the first vertice that have less edges
+    #and choose next vertices if they don't have a edge with the first one choosen
     shuffledList = missingEdges[:]
-    lSorted = heapq.nlargest(len(shuffledList), range(len(shuffledList)), shuffledList.__getitem__)
-    print(lSorted)
+    shuffledIndex = range(len(shuffledList))
+    random.shuffle(shuffledIndex)
+    lSorted = heapq.nlargest(len(shuffledList), shuffledIndex, shuffledList.__getitem__)
     index = 0
     count = 0
+    ret = []
     while(count < number):
         if(index == len(missingEdges)):
             while(count < number):
                 ret.append(lSorted[count])
                 count += 1
             break
-        ret = [lSorted[index]]
+        ret.append(lSorted[index])
         count += 1
         for i in lSorted[index + 1:]:
             if(count == number):
@@ -117,7 +131,7 @@ def main():
     # choice([6,7,8])
     
     count = 0
-    chooseFun = chooseLessKnow
+    chooseFun = chooseLessKnowNoRepeat
     while(not checkCompletion()):
         offset = 1
         vertices = tuple(chooseFun(verticesPerChoice))
@@ -135,7 +149,6 @@ def main():
         seen[vertices] = True
         choice(list(vertices))
         print(vertices)
-        print(adjMatrix)
         progress = sum(missingEdges)
         count += 1
 
