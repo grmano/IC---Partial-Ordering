@@ -65,6 +65,34 @@ def chooseLessKnow(number):
     ret = heapq.nlargest(number, range(len(missingEdges)), missingEdges.__getitem__)
     return ret
 
+def chooseRandom(number):
+    global adjMatrix
+    global missingEdges
+    shuffled = range(len(missingEdges))
+    random.shuffle(shuffled)
+    ret = []
+    count = 0
+    index = 0
+    while (count < number):
+        if(index == len(shuffled) - 1):
+            index = 0
+            while (count < number):
+                ret.append(shuffled[index])
+                index += 1
+                count += 1
+            break
+                
+        if(missingEdges[shuffled[index]] == 0):
+            index += 1
+        else:
+            ret.append(shuffled[index])
+            count += 1
+            index += 1
+    return ret
+            
+
+
+
 def chooseLessKnowNoRepeat(number):
     global adjMatrix
     global missingEdges
@@ -122,6 +150,7 @@ def main():
     seen = dict()
     for i in range(numVertices):
         missingEdges.append(numVertices - i - 1)
+    updateMissingEdges()
 
     #melhor case escolhendo um de cada 
     
@@ -131,7 +160,7 @@ def main():
     # choice([6,7,8])
     
     count = 0
-    chooseFun = chooseLessKnowNoRepeat
+    chooseFun = chooseRandom
     while(not checkCompletion()):
         offset = 1
         vertices = tuple(chooseFun(verticesPerChoice))
@@ -154,7 +183,6 @@ def main():
 
     print(count)
     print(adjMatrix * 1)
-
 
  
 
