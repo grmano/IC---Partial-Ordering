@@ -34,10 +34,10 @@ def computeTransitive():
     #TODO: use fast exponentiation
 
     dimension = len(adjMatrix)
-    numberOfTimes = math.ceil(math.sqrt(dimension))
+    numberOfTimes = int(math.ceil(math.sqrt(dimension)))
 
-    for i in range(dimension):
-        adjMatrix = np.dot(adjMatrix,adjMatrix)
+    for i in range(numberOfTimes):
+        adjMatrix = np.matmul(adjMatrix,adjMatrix)
 
 def updateMissingEdges():
     global adjMatrix
@@ -57,13 +57,13 @@ def checkCompletion():
     global missingEdges
     return 0 == sum(missingEdges)
 
-def chooseLessKnow(number):
-    #simple heuristic to choose vertices for selection, just get all the vertices
-    #that have less edges on the graph
-    global adjMatrix
-    global missingEdges
-    ret = heapq.nlargest(number, range(len(missingEdges)), missingEdges.__getitem__)
-    return ret
+#def chooseLessKnow(number):
+#    #simple heuristic to choose vertices for selection, just get all the vertices
+#    #that have less edges on the graph
+#    global adjMatrix
+#    global missingEdges
+#    ret = heapq.nlargest(number, range(len(missingEdges)), missingEdges.__getitem__)
+#    return ret
 
 def chooseRandom(number):
     global adjMatrix
@@ -93,7 +93,7 @@ def chooseRandom(number):
 
 
 
-def chooseLessKnowNoRepeat(number):
+def chooseLessKnow(number):
     global adjMatrix
     global missingEdges
     #need to shuffle to avoid skewed decision based on ordering
