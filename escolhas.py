@@ -3,9 +3,11 @@ import random
 import argparse
 import math
 import heapq
+import graphUtils as gu
 
 global adjMatrix
 global missingEdges
+global memoChoose
 
 def isNeigh(a, b):
     #since is a directed graph, to test if two vertices are neighbours
@@ -89,11 +91,41 @@ def chooseRandom(number):
             count += 1
             index += 1
     return ret
-            
+
+def chooseMaxSet(number):
+    global adjMatrix
+    global missingEdges
+    global memoChoose
+
+    ret = []
+
+    if(len(memoChoose) == 0):
+        memoChoose = gu.randomMaxSet(adjMatrix, 100)
+        #print(memoChoose)
+        #print(adjMatrix * 1)
+
+    for i in range(number):
+        if(len(memoChoose) == 0):
+            break
+        else:
+            temp = memoChoose.pop()
+            if(missingEdges[temp] == 0):
+                i -= 1
+                next
+            else:
+                ret.append(temp)
+
+    #for j in range(number - len(ret)):
+    #    rand = random.randint(0, len(adjMatrix) - 1)
+    #    while(rand in ret):
+    #        rand = random.randint(0, len(adjMatrix) - 1)
+    #    ret.append(rand)
+    ret.extend(chooseLessKnown(number-len(ret)))
+
+    return ret
 
 
-
-def chooseLessKnow(number):
+def chooseLessKnown(number):
     global adjMatrix
     global missingEdges
     #need to shuffle to avoid skewed decision based on ordering
@@ -133,6 +165,7 @@ def choice(vertices):
 def main():
     global adjMatrix
     global missingEdges
+    global memoChoose
     #comand line parsing options
     parser = argparse.ArgumentParser(description='Numero de Vertices')
     parser.add_argument('numVertices', type=int,
@@ -147,10 +180,12 @@ def main():
     numVertices = args.numVertices
     adjMatrix = np.eye(numVertices, dtype=bool)
     missingEdges = []
+    memoChoose = []
     seen = dict()
     for i in range(numVertices):
         missingEdges.append(numVertices - i - 1)
     updateMissingEdges()
+
 
     #melhor case escolhendo um de cada 
     
@@ -160,7 +195,7 @@ def main():
     # choice([6,7,8])
     
     count = 0
-    chooseFun = chooseRandom
+    chooseFun = chooseMaxSet
     while(not checkCompletion()):
         offset = 1
         vertices = tuple(chooseFun(verticesPerChoice))
@@ -176,8 +211,8 @@ def main():
             offset += 1
 
         seen[vertices] = True
-        choice(list(vertices))
         print(vertices)
+        choice(list(vertices))
         progress = sum(missingEdges)
         count += 1
 
