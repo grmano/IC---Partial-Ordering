@@ -31,6 +31,7 @@ def independent(adjMatrix, a, b):
     return not (adjMatrix[a][b] or adjMatrix[b][a])
 
 def full(adjMatrix, a):
+    #to test if vertice is alredy "complete"
     adjMatrix = np.array(adjMatrix)
     nodesBelow = (np.dot(adjMatrix[a], np.ones(len(adjMatrix), dtype=int)))
     nodesAbove = (np.dot(adjMatrix[:, a], np.ones(len(adjMatrix), dtype=int)))
@@ -38,6 +39,7 @@ def full(adjMatrix, a):
 
 
 def main():
+    #"tests"
     adjMatrix = [[1, 1, 0, 0, 0, 0, 0, 0, 0],
                  [0, 1, 1, 0, 0, 1, 0, 0, 0],
                  [0, 0, 1, 1, 0, 0, 1, 0, 0],

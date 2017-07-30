@@ -3,7 +3,9 @@ import random
 import argparse
 import math
 import heapq
+import time
 import graphUtils as gu
+from transitiveClosure import transitiveClosure
 
 global adjMatrix
 global missingEdges
@@ -159,7 +161,22 @@ def chooseLessKnown(number):
 def choice(vertices):
     #performs the choice and graph updates
     choiceHandler(vertices)
+
+    start = time.time()
+    m = transitiveClosure(adjMatrix)
+    fin = time.time()
+    rec = fin - start
+
+    start = time.time()
     computeTransitive()
+    fin = time.time()
+    mult = fin - start
+
+    print(adjMatrix)
+    print "Time for rec = %0.3f" % (rec * 1000.0)
+    print "Time for matrix = %0.3f" % (mult * 1000.0)
+    if ( not np.array_equal(m, adjMatrix)):
+        print("False")
     updateMissingEdges()
 
 def main():
@@ -193,9 +210,25 @@ def main():
     # choice([2,3,4])
     # choice([4,5,6])
     # choice([6,7,8])
+
+    print("""Choose choice function:
+    1 - Random
+    2 - Less Knowb Vertices First
+    3 - Max Independet Sets
+    """)
+
+    inp = input("Number:")
     
+    if (inp == 1):
+        chooseFun = chooseRandom
+    elif (inp == 2):
+        chooseFun = chooseLessKnown
+    elif (inp == 3):
+        chooseFun = chooseMaxSet
+    else:
+        sys.exit(0)
+
     count = 0
-    chooseFun = chooseMaxSet
     while(not checkCompletion()):
         offset = 1
         vertices = tuple(chooseFun(verticesPerChoice))
