@@ -8,11 +8,12 @@ global visited
 
 
 def transitiveClosure(adjMatrix):
+    #Since the I know the matrix is going to be a uppper triangular with ones in the end
+    #we can speed up the transitive closure calculation using dynamic programming
+
     global matrix
     global neigh
     global visited
-    first = 0.0
-    second = 0.0
 
     matrix = deepcopy(adjMatrix)
     neigh = dict()
@@ -24,29 +25,18 @@ def transitiveClosure(adjMatrix):
     #ITERATIVE VERSION
     for index in range(len(matrix) - 1, -1, -1):
         reachable = Set()
-        start = 0.0
-        fin = 0.0
 
-        start = time.time()
         for i in range(index + 1, len(matrix)):
             if(matrix[index][i] == 1):
                 if(i not in reachable):
                     reachable.add(i)
                     reachable = reachable | neigh[i]
-        fin = time.time()
-        first += (fin - start)
 
 
-        start = time.time()
         neigh[index] = reachable
         for i in reachable:
             matrix[index][i] = 1
-        fin = time.time()
-        second += (fin - start)
 
-
-    print "time for reachable %0.3f" % (first * 1000.0)
-    print "time for update %0.3f" % (second * 1000.0)
     return matrix
 
 def recReach(index):

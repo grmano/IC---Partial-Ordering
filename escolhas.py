@@ -12,8 +12,8 @@ global missingEdges
 global memoChoose
 
 def isNeigh(a, b):
-    #since is a directed graph, to test if two vertices are neighbours
-    #they to have "sorted"
+    #since it a directed graph, to test if two vertices are neighbours
+    #they have to be "sorted"
     global adjMatrix
     if(a < b):
         return adjMatrix[a][b]
@@ -21,7 +21,7 @@ def isNeigh(a, b):
         return adjMatrix[b][a]
 
 def choiceHandler(vertices):
-    #Updates adjMatrix with the direct edges from comparison
+    #Updates adjMatrix with the edges from comparison
     global adjMatrix
     size = len(vertices)
     vertices.sort()
@@ -32,10 +32,10 @@ def choiceHandler(vertices):
 
 def computeTransitive():
     global adjMatrix
-    #compute the transitive matrix using matrix multiplication
     #Naive way
+    #Using matrix multiplication
+    #PS: Better method for this problem implemented in transitiveClosure.py
 
-    #TODO: use fast exponentiation
 
     dimension = len(adjMatrix)
     numberOfTimes = int(math.ceil(math.sqrt(dimension)))
@@ -58,18 +58,13 @@ def updateMissingEdges():
 
 def checkCompletion():
     #return true if graph is fully sorted
+    #equivalent of having a topological sort with no ambiguity
     global missingEdges
     return 0 == sum(missingEdges)
 
-#def chooseLessKnow(number):
-#    #simple heuristic to choose vertices for selection, just get all the vertices
-#    #that have less edges on the graph
-#    global adjMatrix
-#    global missingEdges
-#    ret = heapq.nlargest(number, range(len(missingEdges)), missingEdges.__getitem__)
-#    return ret
-
 def chooseRandom(number):
+    #Random heuristic to be used as a base case in comparison
+    #with better ones
     global adjMatrix
     global missingEdges
     shuffled = range(len(missingEdges))
@@ -95,6 +90,7 @@ def chooseRandom(number):
     return ret
 
 def chooseMaxSet(number):
+    #Selects independent sets to be possible choices
     global adjMatrix
     global missingEdges
     global memoChoose
@@ -160,6 +156,7 @@ def chooseLessKnown(number):
 
 def choice(vertices):
     #performs the choice and graph updates
+    #and transitive computation
     global adjMatrix
     choiceHandler(vertices)
 
@@ -168,13 +165,13 @@ def choice(vertices):
     fin = time.time()
     rec = fin - start
 
+    #CODE TO TEST IF MY TRANSITIVE CLOSURE IS CORRECT AND FASTER
     # start = time.time()
     # computeTransitive()
     # fin = time.time()
     # mult = fin - start
-
-    # print(adjMatrix)
-    print "Time for dynamic = %0.3f" % (rec * 1000.0)
+    #
+    # print "Time for dynamic = %0.3f" % (rec * 1000.0)
     # print "Time for matrix mult = %0.3f" % (mult * 1000.0)
     # if ( not np.array_equal(m, adjMatrix)):
     #     print("False")
@@ -206,16 +203,9 @@ def main():
     updateMissingEdges()
 
 
-    #melhor case escolhendo um de cada 
-    
-    # choice([0,1,2])
-    # choice([2,3,4])
-    # choice([4,5,6])
-    # choice([6,7,8])
-
     print("""Choose choice function:
     1 - Random
-    2 - Less Knowb Vertices First
+    2 - Less Known Vertices First
     3 - Max Independet Sets
     """)
 
