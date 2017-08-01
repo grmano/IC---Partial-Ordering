@@ -160,23 +160,25 @@ def chooseLessKnown(number):
 
 def choice(vertices):
     #performs the choice and graph updates
+    global adjMatrix
     choiceHandler(vertices)
 
     start = time.time()
-    m = transitiveClosure(adjMatrix)
+    adjMatrix = transitiveClosure(adjMatrix)
     fin = time.time()
     rec = fin - start
 
-    start = time.time()
-    computeTransitive()
-    fin = time.time()
-    mult = fin - start
+    # start = time.time()
+    # computeTransitive()
+    # fin = time.time()
+    # mult = fin - start
 
-    print(adjMatrix)
-    print "Time for rec = %0.3f" % (rec * 1000.0)
-    print "Time for matrix = %0.3f" % (mult * 1000.0)
-    if ( not np.array_equal(m, adjMatrix)):
-        print("False")
+    # print(adjMatrix)
+    print "Time for dynamic = %0.3f" % (rec * 1000.0)
+    # print "Time for matrix mult = %0.3f" % (mult * 1000.0)
+    # if ( not np.array_equal(m, adjMatrix)):
+    #     print("False")
+    #     sys.exit(0)
     updateMissingEdges()
 
 def main():
