@@ -3,8 +3,6 @@ import random
 
 
 def randomMaxSet(adjMatrix, ite):
-    #
-    #
     ret = []
     for i in range(ite):
         vertices = range(len(adjMatrix))
@@ -15,17 +13,14 @@ def randomMaxSet(adjMatrix, ite):
             if(full(adjMatrix,vert)):
                 next
             else:
-                #for v in vertices:
-                #    if not independent(adjMatrix, vert, v):
-                #        vertices.remove(v)
                 vertices[:] = (v for v in vertices if independent(adjMatrix,vert,v))
                 inSet.append(vert)
 
         if(len(inSet) > len(ret)):
             ret = inSet[:]
-
-    
     return ret
+
+#def randomMaxSet(adjMatrix, ite, 
 
 def independent(adjMatrix, a, b):
     return not (adjMatrix[a][b] or adjMatrix[b][a])

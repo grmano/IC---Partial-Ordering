@@ -1,4 +1,5 @@
 import numpy as np
+import matplotlib.pyplot as plt
 import random
 import argparse
 import math
@@ -89,7 +90,7 @@ def chooseRandom(number):
             index += 1
     return ret
 
-def chooseMaxSet(number):
+def chooseMaxSetRandom(number):
     #Selects independent sets to be possible choices
     global adjMatrix
     global missingEdges
@@ -113,15 +114,83 @@ def chooseMaxSet(number):
             else:
                 ret.append(temp)
 
-    #for j in range(number - len(ret)):
-    #    rand = random.randint(0, len(adjMatrix) - 1)
-    #    while(rand in ret):
-    #        rand = random.randint(0, len(adjMatrix) - 1)
-    #    ret.append(rand)
+    for j in range(number - len(ret)):
+       rand = random.randint(0, len(adjMatrix) - 1)
+       count = 0
+       while((rand in ret or missingEdges[rand] == 0) and count < len(missingEdges)):
+           count += 1
+           rand = random.randint(0, len(adjMatrix) - 1)
+       ret.append(rand)
+
+    return ret
+
+def chooseMaxSetLess(number):
+    #Selects independent sets to be possible choices
+    global adjMatrix
+    global missingEdges
+    global memoChoose
+
+    ret = []
+
+    if(len(memoChoose) == 0):
+        memoChoose = gu.randomMaxSet(adjMatrix, 100)
+        #print(memoChoose)
+        #print(adjMatrix * 1)
+
+    for i in range(number):
+        if(len(memoChoose) == 0):
+            break
+        else:
+            temp = memoChoose.pop()
+            if(missingEdges[temp] == 0):
+                i -= 1
+                next
+            else:
+                ret.append(temp)
+
     ret.extend(chooseLessKnown(number-len(ret)))
 
     return ret
 
+# def chooseMaxSetPure(number):
+#     #Selects independent sets to be possible choices
+#     global adjMatrix
+#     global missingEdges
+#     global memoChoose
+#
+#     ret = []
+#
+#     if(len(memoChoose) == 0):
+#         #computes new independent set if none are available
+#         memoChoose = gu.randomMaxSet(adjMatrix, 500)
+#         #print(memoChoose)
+#         #print(adjMatrix * 1)
+#
+#     for i in range(number):
+#         if(len(memoChoose) == 0):
+#             break
+#         else:
+#             temp = memoChoose.pop()
+#             if(missingEdges[temp] == 0):
+#                 i -= 1
+#                 next
+#             else:
+#                 ret.append(temp)
+#
+#     while (len(ret) < number):
+#         #add other independe
+#
+#     for j in range(number - len(ret)):
+#        rand = random.randint(0, len(adjMatrix) - 1)
+#        count = 0
+#        while((rand in ret or missingEdges[rand] == 0) and count < len(missingEdges)):
+#            count += 1
+#            rand = random.randint(0, len(adjMatrix) - 1)
+#        ret.append(rand)
+#
+#     ret.extend(chooseLessKnown(number-len(ret)))
+#
+#     return ret
 
 def chooseLessKnown(number):
     global adjMatrix
@@ -206,21 +275,36 @@ def main():
     print("""Choose choice function:
     1 - Random
     2 - Less Known Vertices First
-    3 - Max Independet Sets
+    3 - Max Independent Sets + Random
+    4 - Max Independent Sets + Less Know
     """)
 
     inp = input("Number:")
-    
+
+    print("Want to see the graph of edges added by partial ordering?")
+    print("1 = Yes 0 = No")
+    plotFlag = input("Plot?:")
+
+    plotFlag = int(plotFlag)
+
     if (inp == 1):
         chooseFun = chooseRandom
     elif (inp == 2):
         chooseFun = chooseLessKnown
     elif (inp == 3):
-        chooseFun = chooseMaxSet
+        chooseFun = chooseMaxSetRandom
+    elif (inp == 4):
+        chooseFun = chooseMaxSetLess
+
     else:
         sys.exit(0)
 
     count = 0
+    if plotFlag:
+        #Initialize if plot is to be drawn
+        progress = sum(missingEdges)
+        edgesGained =[]
+
     while(not checkCompletion()):
         offset = 1
         vertices = tuple(chooseFun(verticesPerChoice))
@@ -238,12 +322,20 @@ def main():
         seen[vertices] = True
         print(vertices)
         choice(list(vertices))
-        progress = sum(missingEdges)
+        if plotFlag:
+            temp = sum(missingEdges)
+            edgesGained.append((progress - temp)/2)
+            progress = temp
         count += 1
 
+    
     print(count)
     print(adjMatrix * 1)
-
- 
+    if plotFlag:
+        ind = range(0, count)
+        plt.ylim(0, max(edgesGained)+ 2)
+        plt.plot(ind,edgesGained, 'bs')
+        plt.grid(True)
+        plt.show()
 
 main()
