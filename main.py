@@ -152,45 +152,56 @@ def chooseMaxSetLess(number):
 
     return ret
 
-# def chooseMaxSetPure(number):
-#     #Selects independent sets to be possible choices
-#     global adjMatrix
-#     global missingEdges
-#     global memoChoose
-#
-#     ret = []
-#
-#     if(len(memoChoose) == 0):
-#         #computes new independent set if none are available
-#         memoChoose = gu.randomMaxSet(adjMatrix, 500)
-#         #print(memoChoose)
-#         #print(adjMatrix * 1)
-#
-#     for i in range(number):
-#         if(len(memoChoose) == 0):
-#             break
-#         else:
-#             temp = memoChoose.pop()
-#             if(missingEdges[temp] == 0):
-#                 i -= 1
-#                 next
-#             else:
-#                 ret.append(temp)
-#
-#     while (len(ret) < number):
-#         #add other independe
-#
-#     for j in range(number - len(ret)):
-#        rand = random.randint(0, len(adjMatrix) - 1)
-#        count = 0
-#        while((rand in ret or missingEdges[rand] == 0) and count < len(missingEdges)):
-#            count += 1
-#            rand = random.randint(0, len(adjMatrix) - 1)
-#        ret.append(rand)
-#
-#     ret.extend(chooseLessKnown(number-len(ret)))
-#
-#     return ret
+def chooseMaxSetPure(number):
+    #Selects independent sets to be possible choices
+    global adjMatrix
+    global missingEdges
+    global memoChoose
+
+    ret = []
+
+    if(len(memoChoose) == 0):
+        #computes new independent set if none are available
+        memoChoose = gu.randomMaxSet(adjMatrix, 500)
+        #print(memoChoose)
+        #print(adjMatrix * 1)
+
+    for i in range(number):
+        if(len(memoChoose) == 0):
+            break
+        else:
+            temp = memoChoose.pop()
+            if(missingEdges[temp] == 0):
+                i -= 1
+                next
+            else:
+                ret.append(temp)
+
+    countVertices = 0
+    for vertice in missingEdges:
+        if (vertice != 0):
+            countVertices += 1
+
+
+    while (len(ret) < number and len(ret) < countVertices):
+        indVert = gu.randomMaxSetEx(adjMatrix, 100, ret)
+        # print "len(ret) %i" % len(ret)
+        # print "countVertices %i" % countVertices
+
+        for i in indVert:
+            if(len(ret) == number):
+                break
+            ret.append(i)
+
+        countVertices = 0
+        for vertice in missingEdges:
+            if (vertice != 0):
+                countVertices += 1
+
+
+    ret.extend(chooseLessKnown(number-len(ret)))
+
+    return ret
 
 def chooseLessKnown(number):
     global adjMatrix
@@ -277,6 +288,7 @@ def main():
     2 - Less Known Vertices First
     3 - Max Independent Sets + Random
     4 - Max Independent Sets + Less Know
+    5 - Max Independet Sets Pure
     """)
 
     inp = input("Number:")
@@ -295,7 +307,8 @@ def main():
         chooseFun = chooseMaxSetRandom
     elif (inp == 4):
         chooseFun = chooseMaxSetLess
-
+    elif (inp == 5):
+        chooseFun = chooseMaxSetPure
     else:
         sys.exit(0)
 
