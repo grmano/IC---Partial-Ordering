@@ -303,7 +303,8 @@ def main():
     if plotFlag:
         #Initialize if plot is to be drawn
         progress = sum(missingEdges)
-        edgesGained =[]
+        edgesGained = []
+        missing = []
 
     while(not checkCompletion()):
         offset = 1
@@ -325,6 +326,7 @@ def main():
         if plotFlag:
             temp = sum(missingEdges)
             edgesGained.append((progress - temp)/2)
+            missing.append(progress)
             progress = temp
         count += 1
 
@@ -333,8 +335,8 @@ def main():
     print(adjMatrix * 1)
     if plotFlag:
         ind = range(0, count)
-        plt.ylim(0, max(edgesGained)+ 2)
-        plt.plot(ind,edgesGained, 'bs')
+        #plt.ylim(0, max(edgesGained)+ 2)
+        plt.plot(ind, edgesGained, 'bs', missing, 'g^')
         plt.grid(True)
         plt.show()
 
