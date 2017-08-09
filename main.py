@@ -268,13 +268,17 @@ def main():
             help='Numero de vertices no grafo necessario')
     parser.add_argument('verticesPerChoice', type=int,
             help='Numero de opcoes a cada escolha')
+    parser.add_argument('stats', type=int,
+            help='True se quiser rodar varias vezes para calcular a media')
     args = parser.parse_args()
 
     
     #initialization
     verticesPerChoice = args.verticesPerChoice
     numVertices = args.numVertices
+    stats = args.stats
     adjMatrix = np.eye(numVertices, dtype=bool)
+
     missingEdges = []
     memoChoose = []
     seen = dict()
@@ -291,13 +295,16 @@ def main():
     5 - Max Independet Sets Pure
     """)
 
+
     inp = input("Number:")
 
-    print("Want to see the graph of edges added by partial ordering?")
-    print("1 = Yes 0 = No")
-    plotFlag = input("Plot?:")
-
-    plotFlag = int(plotFlag)
+    if not stats:
+        print("Want to see the graph of edges added by partial ordering?")
+        print("1 = Yes 0 = No")
+        plotFlag = input("Plot?:")
+        plotFlag = int(plotFlag)
+    else:
+        plotFlag = False
 
     if (inp == 1):
         chooseFun = chooseRandom
@@ -319,34 +326,61 @@ def main():
         edgesGained = []
         missing = []
 
-    while(not checkCompletion()):
-        offset = 1
-        vertices = tuple(chooseFun(verticesPerChoice))
-        while vertices in seen:
-            #if the vertices have been used already
-            vertices = chooseFun(verticesPerChoice + offset)
-            random.shuffle(vertices)
-            # newNum = vertices[verticesPerChoice + offset - 1]
-            vertices = vertices[0:verticesPerChoice]
-            # vertices.append(newNum)
-            vertices.sort()
-            vertices = tuple(vertices)
-            offset += 1
+        
+    if(stats):
+        times = input("How many times?")
+        times = int(times)
+    else:
+        times = 1
 
-        seen[vertices] = True
-        print(vertices)
-        choice(list(vertices))
-        if plotFlag:
-            temp = sum(missingEdges)
-            edgesGained.append((progress - temp)/2)
-            missing.append(progress)
-            progress = temp
-        count += 1
-
+    iterations = 0
     
-    print(count)
-    print(adjMatrix * 1)
-    if plotFlag:
+    iterCounts = []
+    while(iterations < times):
+        while(not checkCompletion()):
+            offset = 1
+            vertices = tuple(chooseFun(verticesPerChoice))
+            while vertices in seen:
+                #if the vertices have been used already
+                vertices = chooseFun(verticesPerChoice + offset)
+                random.shuffle(vertices)
+                # newNum = vertices[verticesPerChoice + offset - 1]
+                vertices = vertices[0:verticesPerChoice]
+                # vertices.append(newNum)
+                vertices.sort()
+                vertices = tuple(vertices)
+                offset += 1
+
+            seen[vertices] = True
+            if not stats:
+                print(vertices)
+            choice(list(vertices))
+            if plotFlag:
+                temp = sum(missingEdges)
+                edgesGained.append((progress - temp)/2)
+                missing.append(progress/2)
+                progress = temp
+            count += 1
+        iterations += 1
+        adjMatrix = np.eye(numVertices, dtype=bool)
+        missingEdges = []
+        memoChoose = []
+        seen = dict()
+        for i in range(numVertices):
+            missingEdges.append(numVertices - i - 1)
+        updateMissingEdges()
+        iterCounts.append(count)
+        count = 0
+
+
+    if stats:
+        print "Mean: %0.3f" % np.mean(iterCounts)
+        print "StdDv: %0.3f" % np.std(iterCounts)
+        print "Max: %d" % max(iterCounts)
+        print "Min: %d" % min(iterCounts)
+
+    print(count/times)
+    if plotFlag and not stats:
         ind = range(0, count)
         #plt.ylim(0, max(edgesGained)+ 2)
         plt.plot(ind, edgesGained, 'bs', missing, 'g^')
