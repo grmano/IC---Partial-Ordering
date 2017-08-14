@@ -325,6 +325,7 @@ def main():
         progress = sum(missingEdges)
         edgesGained = []
         missing = []
+        indCount = 0
 
         
     if(stats):
@@ -360,6 +361,7 @@ def main():
                 edgesGained.append((progress - temp)/2)
                 missing.append(progress/2)
                 progress = temp
+                indCount += 1
             count += 1
         iterations += 1
         adjMatrix = np.eye(numVertices, dtype=bool)
@@ -381,8 +383,10 @@ def main():
 
     print(count/times)
     if plotFlag and not stats:
-        ind = range(0, count)
+        ind = range(0, indCount)
         #plt.ylim(0, max(edgesGained)+ 2)
+        print(missing)
+        print(edgesGained)
         plt.plot(ind, edgesGained, 'bs', missing, 'g^')
         plt.grid(True)
         plt.show()
