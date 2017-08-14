@@ -11,6 +11,9 @@ from transitiveClosure import transitiveClosure
 global adjMatrix
 global missingEdges
 global memoChoose
+global listOfNormal
+global listOfTransitiveClosure
+global plotFlag
 
 def isNeigh(a, b):
     #since it a directed graph, to test if two vertices are neighbours
@@ -238,30 +241,35 @@ def choice(vertices):
     #performs the choice and graph updates
     #and transitive computation
     global adjMatrix
+    global plotFlag
+    global listOfNormal
+    global listOfTransitiveClosure
+
+    if plotFlag:
+        before = sum(missingEdges)
     choiceHandler(vertices)
+    if plotFlag:
+        updateMissingEdges()
+        after = sum(missingEdges)
+        listOfNormal.append((before - after)/2)
 
-    start = time.time()
+    if plotFlag:
+        before = sum(missingEdges)
     adjMatrix = transitiveClosure(adjMatrix)
-    fin = time.time()
-    rec = fin - start
+    if plotFlag:
+        updateMissingEdges()
+        after = sum(missingEdges)
+        listOfTransitiveClosure.append((before - after)/2)
 
-    #CODE TO TEST IF MY TRANSITIVE CLOSURE IS CORRECT AND FASTER
-    # start = time.time()
-    # computeTransitive()
-    # fin = time.time()
-    # mult = fin - start
-    #
-    # print "Time for dynamic = %0.3f" % (rec * 1000.0)
-    # print "Time for matrix mult = %0.3f" % (mult * 1000.0)
-    # if ( not np.array_equal(m, adjMatrix)):
-    #     print("False")
-    #     sys.exit(0)
     updateMissingEdges()
 
 def main():
     global adjMatrix
     global missingEdges
     global memoChoose
+    global plotFlag
+    global listOfTransitiveClosure
+    global listOfNormal
     #comand line parsing options
     parser = argparse.ArgumentParser(description='Numero de Vertices')
     parser.add_argument('numVertices', type=int,
@@ -326,6 +334,8 @@ def main():
         edgesGained = []
         missing = []
         indCount = 0
+        listOfNormal = []
+        listOfTransitiveClosure = []
 
         
     if(stats):
@@ -381,14 +391,40 @@ def main():
         print "Max: %d" % max(iterCounts)
         print "Min: %d" % min(iterCounts)
 
-    print(count/times)
+    print(indCount/times)
     if plotFlag and not stats:
-        ind = range(0, indCount)
+        ind = np.arange(0, indCount)
         #plt.ylim(0, max(edgesGained)+ 2)
+        plt.xlabel('Choice')
+        plt.ylabel('Missing Edges')
+        plt.legend()
         print(missing)
         print(edgesGained)
         plt.plot(ind, edgesGained, 'bs', missing, 'g^')
         plt.grid(True)
+        fig = plt.figure()
+        plt.plot(ind, edgesGained, 'bs')
+        barWidth = 0.4
+        opacitiy = 0.8
+
+        rectNormal = plt.bar(ind - barWidth, listOfNormal, barWidth,
+                        alpha=opacitiy,
+                        color='r',
+                        label='Choice Edges')
+
+        rectTransitive = plt.bar(ind, listOfTransitiveClosure, barWidth,
+                        alpha=opacitiy,
+                        color='g',
+                        label='Transitive Edges')
+
+        plt.xlabel('Choice')
+        plt.ylabel('Edges Gained')
+
+        ax = fig.add_subplot(111)
+        for i,j in zip(ind,edgesGained):
+            ax.annotate(str(j),xy=(i,j + 0.5))
+
+        plt.legend()
         plt.show()
 
 main()
