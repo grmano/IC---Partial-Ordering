@@ -348,6 +348,7 @@ def main():
     
     iterCounts = []
     while(iterations < times):
+        count = 0
         while(not checkCompletion()):
             offset = 1
             vertices = tuple(chooseFun(verticesPerChoice))
@@ -382,7 +383,6 @@ def main():
             missingEdges.append(numVertices - i - 1)
         updateMissingEdges()
         iterCounts.append(count)
-        count = 0
 
 
     if stats:
@@ -391,7 +391,7 @@ def main():
         print "Max: %d" % max(iterCounts)
         print "Min: %d" % min(iterCounts)
 
-    print(indCount/times)
+    print(count/times)
     if plotFlag and not stats:
         ind = np.arange(0, indCount)
         #plt.ylim(0, max(edgesGained)+ 2)
